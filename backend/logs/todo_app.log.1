@@ -1,0 +1,117 @@
+2024-11-20 02:10:44,110 ERROR: Registration error: (sqlite3.IntegrityError) UNIQUE constraint failed: users.email
+[SQL: INSERT INTO users (username, email, password_hash, created_at) VALUES (?, ?, ?, ?)]
+[parameters: ('yash', 'yashvardhan.sharma2015@gmail.com', 'pbkdf2:sha256:600000$SR3QdQKLojGQevmh$24f59182966ec73a1ee78d38fb0288c95faf40d846cb619922ec72ba6b56e79b', '2024-11-20 10:10:44.110286')]
+(Background on this error at: https://sqlalche.me/e/14/gkpj) [in /Users/yashvardhansharma/Downloads/webapp162/backend/core/blueprints/bp_auth.py:109]
+Traceback (most recent call last):
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1910, in _execute_context
+    self.dialect.do_execute(
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 736, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.IntegrityError: UNIQUE constraint failed: users.email
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/yashvardhansharma/Downloads/webapp162/backend/core/blueprints/bp_auth.py", line 93, in register
+    db.session.commit()
+  File "<string>", line 2, in commit
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1454, in commit
+    self._transaction.commit(_to_root=self.future)
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 832, in commit
+    self._prepare_impl()
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 811, in _prepare_impl
+    self.session.flush()
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 3449, in flush
+    self._flush(objects)
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 3588, in _flush
+    with util.safe_reraise():
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 70, in __exit__
+    compat.raise_(
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/sqlalchemy/util/compat.py", line 211, in raise_
+    raise exception
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 3549, in _flush
+    flush_context.execute()
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 456, in execute
+    rec.execute(self)
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 630, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 245, in save_obj
+    _emit_insert_statements(
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1238, in _emit_insert_statements
+    result = connection._execute_20(
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1710, in _execute_20
+    return meth(self, args_10style, kwargs_10style, execution_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 334, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1577, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1953, in _execute_context
+    self._handle_dbapi_exception(
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2134, in _handle_dbapi_exception
+    util.raise_(
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/sqlalchemy/util/compat.py", line 211, in raise_
+    raise exception
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1910, in _execute_context
+    self.dialect.do_execute(
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 736, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: users.email
+[SQL: INSERT INTO users (username, email, password_hash, created_at) VALUES (?, ?, ?, ?)]
+[parameters: ('yash', 'yashvardhan.sharma2015@gmail.com', 'pbkdf2:sha256:600000$SR3QdQKLojGQevmh$24f59182966ec73a1ee78d38fb0288c95faf40d846cb619922ec72ba6b56e79b', '2024-11-20 10:10:44.110286')]
+(Background on this error at: https://sqlalche.me/e/14/gkpj)
+2024-11-20 02:11:49,757 ERROR: Login error: 'Flask' object has no attribute 'login_manager' [in /Users/yashvardhansharma/Downloads/webapp162/backend/core/blueprints/bp_auth.py:165]
+Traceback (most recent call last):
+  File "/Users/yashvardhansharma/Downloads/webapp162/backend/core/blueprints/bp_auth.py", line 144, in login
+    login_user(user)
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/flask_login/utils.py", line 183, in login_user
+    user_id = getattr(user, current_app.login_manager.id_attribute)()
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Flask' object has no attribute 'login_manager'
+2024-11-20 02:11:59,445 ERROR: Login error: 'Flask' object has no attribute 'login_manager' [in /Users/yashvardhansharma/Downloads/webapp162/backend/core/blueprints/bp_auth.py:165]
+Traceback (most recent call last):
+  File "/Users/yashvardhansharma/Downloads/webapp162/backend/core/blueprints/bp_auth.py", line 144, in login
+    login_user(user)
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/flask_login/utils.py", line 183, in login_user
+    user_id = getattr(user, current_app.login_manager.id_attribute)()
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Flask' object has no attribute 'login_manager'
+2024-11-20 02:12:01,296 ERROR: Login error: 'Flask' object has no attribute 'login_manager' [in /Users/yashvardhansharma/Downloads/webapp162/backend/core/blueprints/bp_auth.py:165]
+Traceback (most recent call last):
+  File "/Users/yashvardhansharma/Downloads/webapp162/backend/core/blueprints/bp_auth.py", line 144, in login
+    login_user(user)
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/flask_login/utils.py", line 183, in login_user
+    user_id = getattr(user, current_app.login_manager.id_attribute)()
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Flask' object has no attribute 'login_manager'
+2024-11-20 02:13:53,961 INFO: Todo application startup [in /Users/yashvardhansharma/Downloads/webapp162/backend/run.py:101]
+2024-11-20 02:13:54,110 INFO: Todo application startup [in /Users/yashvardhansharma/Downloads/webapp162/backend/run.py:101]
+2024-11-20 02:13:55,979 ERROR: Login error: 'Flask' object has no attribute 'login_manager' [in /Users/yashvardhansharma/Downloads/webapp162/backend/core/blueprints/bp_auth.py:165]
+Traceback (most recent call last):
+  File "/Users/yashvardhansharma/Downloads/webapp162/backend/core/blueprints/bp_auth.py", line 144, in login
+    login_user(user)
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/flask_login/utils.py", line 183, in login_user
+    user_id = getattr(user, current_app.login_manager.id_attribute)()
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Flask' object has no attribute 'login_manager'
+2024-11-20 02:13:57,536 ERROR: Login error: 'Flask' object has no attribute 'login_manager' [in /Users/yashvardhansharma/Downloads/webapp162/backend/core/blueprints/bp_auth.py:165]
+Traceback (most recent call last):
+  File "/Users/yashvardhansharma/Downloads/webapp162/backend/core/blueprints/bp_auth.py", line 144, in login
+    login_user(user)
+  File "/Users/yashvardhansharma/Downloads/webapp162/venv/lib/python3.12/site-packages/flask_login/utils.py", line 183, in login_user
+    user_id = getattr(user, current_app.login_manager.id_attribute)()
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Flask' object has no attribute 'login_manager'
+2024-11-20 02:15:14,326 INFO: Todo application startup [in /Users/yashvardhansharma/Downloads/webapp162/backend/run.py:102]
+2024-11-20 02:17:07,257 INFO: Todo application startup [in /Users/yashvardhansharma/Downloads/webapp162/backend/run.py:113]
+2024-11-20 02:21:27,504 INFO: Todo application startup [in /Users/yashvardhansharma/Downloads/webapp162/backend/run.py:101]
+2024-11-20 02:23:45,943 INFO: Todo application startup [in /Users/yashvardhansharma/Downloads/webapp162/backend/run.py:101]
+2024-11-20 02:25:43,745 INFO: Todo application startup [in /Users/yashvardhansharma/Downloads/webapp162/backend/run.py:101]
+2024-11-20 02:27:35,155 INFO: Todo application startup [in /Users/yashvardhansharma/Downloads/webapp162/backend/run.py:101]
+2024-11-20 02:27:52,184 INFO: Todo application startup [in /Users/yashvardhansharma/Downloads/webapp162/backend/run.py:101]
+2024-11-20 02:28:04,415 INFO: Todo application startup [in /Users/yashvardhansharma/Downloads/webapp162/backend/run.py:101]
+2024-11-20 02:29:49,416 INFO: Todo application startup [in /Users/yashvardhansharma/Downloads/webapp162/backend/run.py:101]
+2024-11-20 02:30:21,490 INFO: Todo application startup [in /Users/yashvardhansharma/Downloads/webapp162/backend/run.py:101]
