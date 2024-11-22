@@ -6,7 +6,7 @@ from flask import Blueprint, request, jsonify, current_app
 from flask_cors import CORS, cross_origin
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from core.models import db, Lists
-from marshmallow import Schema, fields, ValidationError
+from marshmallow import Schema, fields, ValidationError, validates_schema
 from sqlalchemy.exc import SQLAlchemyError
 from functools import wraps
 import logging
@@ -17,18 +17,24 @@ logger = logging.getLogger(__name__)
 # Schema Definition
 class ListSchema(Schema):
     id = fields.Int(dump_only=True)
-    name = fields.Str(required=True, validate=lambda x: len(x.strip()) > 0)
+    name = fields.Str(validate=lambda x: len(x.strip()) > 0)
+    subject = fields.Str(validate=lambda x: len(x.strip()) > 0)
     description = fields.Str(allow_none=True)
     user_id = fields.Int(dump_only=True)
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
 
+    @validates_schema
+    def validate_name_or_subject(self, data, **kwargs):
+        if not data.get('name') and not data.get('subject'):
+            raise ValidationError('Either name or subject must be provided')
+
 bp_list = Blueprint("lists", __name__)
+
+# Replace with a simpler CORS setup
 CORS(bp_list, resources={
     r"/*": {
         "origins": ["http://localhost:3000"],
-        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization"],
         "supports_credentials": True
     }
 })
@@ -83,11 +89,14 @@ def create_list():
                 "message": "No data provided"
             }), 400
 
-        # Use schema validation instead of manual checks
+        # Use schema validation
         list_data = list_schema.load(data)
         
+        # Use name if provided, otherwise use subject
+        list_name = list_data.get('name') or list_data.get('subject')
+        
         new_list = Lists(
-            name=list_data['name'],
+            name=list_name,
             description=list_data.get('description', ''),
             user_id=current_user_id
         )
