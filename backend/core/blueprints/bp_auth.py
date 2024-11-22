@@ -177,3 +177,24 @@ def ping():
     """Test endpoint to verify API connectivity"""
     print("Ping endpoint hit!")  # Server-side logging
     return jsonify({"status": "success", "message": "API is working"}), 200
+
+@bp_auth.route("/verify", methods=["GET"])
+@jwt_required()
+def verify_token():
+    current_user_id = get_jwt_identity()
+    user = Users.query.get(current_user_id)
+    
+    if not user:
+        return jsonify({
+            'ok': False,
+            'message': 'Invalid token'
+        }), 401
+        
+    return jsonify({
+        'ok': True,
+        'user': {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email
+        }
+    }), 200

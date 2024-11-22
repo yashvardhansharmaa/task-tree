@@ -1,48 +1,49 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import { showNotification } from '@mantine/notifications';
 import axiosInstance from '../utils/axios';
 import { API_ENDPOINTS } from '../config/api';
 
-const ListContext = createContext();
+const ListContext = createContext(null);
 
 export const ListProvider = ({ children }) => {
-  const [lists, setLists] = useState([
-    {
-      id: '1',
-      title: 'To Do',
-      items: [
-        { 
-          id: '1', 
-          title: 'Create login page',
-          description: 'Implement user authentication flow',
-          labels: ['Frontend', 'High'],
-          completed: false,
-          collapsed: false,
-          subItems: [
-            { 
-              id: '1-1', 
-              title: 'Design login form',
-              completed: true,
-              collapsed: false,
-              subItems: [
-                { 
-                  id: '1-1-1', 
-                  title: 'Create wireframes',
-                  completed: true,
-                  subItems: []
-                }
-              ]
-            }
-          ]
+  const [lists, setLists] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch user's lists when component mounts
+  useEffect(() => {
+    const fetchLists = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setLists([]);
+          setLoading(false);
+          return;
         }
-      ]
-    },
-    {
-      id: '2',
-      title: 'In Progress',
-      items: []
-    }
-  ]);
+
+        const response = await axiosInstance.get(API_ENDPOINTS.lists.getAll);
+        if (response.data.lists) {
+          // Transform backend data to match frontend structure
+          const transformedLists = response.data.lists.map(list => ({
+            id: list.id,
+            title: list.name,
+            items: list.items || []
+          }));
+          setLists(transformedLists);
+        }
+      } catch (error) {
+        console.error('Failed to fetch lists:', error);
+        showNotification({
+          title: 'Error',
+          message: 'Failed to load your lists',
+          color: 'red'
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLists();
+  }, []);
 
   const updateItemsRecursively = (items, targetId, updateFn) => {
     return items.map(item => {
@@ -352,6 +353,7 @@ export const ListProvider = ({ children }) => {
   return (
     <ListContext.Provider value={{
       lists,
+      loading,
       addList,
       updateList,
       deleteList,

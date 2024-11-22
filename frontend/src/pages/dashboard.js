@@ -1,18 +1,39 @@
 import React from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
-import { Container, Title, Group, Paper, Button, Text, Box, Transition } from '@mantine/core';
+import { Container, Title, Group, Paper, Button, Text, Box, Transition, Loader } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import Logo from '../components/Logo';
 import { motion } from 'framer-motion';
 import ListComponent from '../components/ListComponent';
 import { useList } from '../contexts/ListContext';
+import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { axiosInstance, API_ENDPOINTS } from '../config/api';
+import { showNotification } from '@mantine/notifications';
 
 const Dashboard = () => {
-  const { lists, moveItem, addList } = useList();
+  const { lists, loading, moveItem, addList, updateList, deleteList } = useList();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  if (loading) {
+    return (
+      <Container fluid p="xl">
+        <Group position="center" style={{ minHeight: '100vh' }}>
+          <Loader size="lg" />
+        </Group>
+      </Container>
+    );
+  }
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
     moveItem(result.source, result.destination);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/auth');
   };
 
   return (
@@ -23,14 +44,23 @@ const Dashboard = () => {
             <Logo />
             <Text size="sm" color="dimmed">Organize your tasks hierarchically</Text>
           </Group>
-          <Button
-            variant="gradient"
-            gradient={{ from: 'indigo', to: 'cyan' }}
-            leftIcon={<IconPlus size={16} />}
-            onClick={() => addList('New List')}
-          >
-            New List
-          </Button>
+          <Group>
+            <Button
+              variant="gradient"
+              gradient={{ from: 'indigo', to: 'cyan' }}
+              leftIcon={<IconPlus size={16} />}
+              onClick={() => addList('New List')}
+            >
+              New List
+            </Button>
+            <Button
+              variant="subtle"
+              color="gray"
+              onClick={handleLogout}
+            >
+              Logout
+            </Button>
+          </Group>
         </Group>
       </Box>
 

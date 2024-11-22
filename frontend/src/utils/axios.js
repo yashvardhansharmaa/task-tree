@@ -23,9 +23,13 @@ axiosInstance.interceptors.request.use(
 // Add a response interceptor to handle errors
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Handle unauthorized access
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      // Clear auth state and redirect to login
       localStorage.removeItem('token');
       window.location.href = '/auth';
     }
