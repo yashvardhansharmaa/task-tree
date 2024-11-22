@@ -27,19 +27,18 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       setLoading(true);
-      const response = await axiosInstance.post(API_ENDPOINTS.auth.register, userData, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      setUser(response.data.user);
-      localStorage.setItem('token', response.data.token);
+      const response = await axiosInstance.post(API_ENDPOINTS.auth.register, userData);
+      
+      if (response.data.token) {
+        setUser(response.data.user);
+        setIsAuthenticated(true);
+        localStorage.setItem('token', response.data.token);
+      }
+      
       return response.data;
     } catch (error) {
-      if (error.response?.status === 409) {
-        throw new Error(error.response.data.message);
-      }
-      throw new Error('Registration failed');
+      const message = error.response?.data?.message || 'Registration failed';
+      throw new Error(message);
     } finally {
       setLoading(false);
     }

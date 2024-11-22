@@ -48,14 +48,30 @@ def register():
     
     # Validate input data
     if not data or not data.get('username') or not data.get('email') or not data.get('password'):
-        return jsonify({'message': 'Missing required fields'}), 400
+        return jsonify({
+            'ok': False,
+            'message': 'Missing required fields'
+        }), 400
         
     try:
+        # Validate email format
+        if not is_valid_email(data['email']):
+            return jsonify({
+                'ok': False,
+                'message': 'Invalid email format'
+            }), 400
+
         # Check if user already exists
         if Users.query.filter_by(username=data['username']).first():
-            return jsonify({'message': 'Username already exists'}), 409
+            return jsonify({
+                'ok': False,
+                'message': 'Username already exists'
+            }), 409
         if Users.query.filter_by(email=data['email']).first():
-            return jsonify({'message': 'Email already exists'}), 409
+            return jsonify({
+                'ok': False,
+                'message': 'Email already exists'
+            }), 409
             
         # Create new user
         new_user = Users(
@@ -71,6 +87,7 @@ def register():
         access_token = create_access_token(identity=new_user.id)
         
         return jsonify({
+            'ok': True,
             'message': 'User registered successfully',
             'token': access_token,
             'user': {
