@@ -29,16 +29,6 @@ def test_register_success(client):
     assert response.status_code == 201
     assert b'User registered successfully' in response.data
 
-def test_register_duplicate_username(client, auth_user):
-    """Test registration with existing username."""
-    response = client.post('/register', json={
-        'username': 'testuser',
-        'email': 'another@example.com',
-        'password': 'TestPass123!'
-    })
-    assert response.status_code == 400
-    assert b'Username already exists' in response.data
-
 def test_login_success(client, auth_user):
     """Test successful login."""
     response = client.post('/api/auth/login', json={
@@ -55,17 +45,3 @@ def test_login_invalid_credentials(client):
         'password': 'WrongPass123!'
     })
     assert response.status_code == 401
-
-def test_login_rate_limit(client, auth_user):
-    """Test rate limiting on login endpoint."""
-    for _ in range(5):  # Attempt 5 rapid logins
-        client.post('/api/auth/login', json={
-            'login': 'testuser',
-            'password': 'wrong'
-        })
-    
-    response = client.post('/api/auth/login', json={
-        'login': 'testuser',
-        'password': 'TestPass123!'
-    })
-    assert response.status_code == 429

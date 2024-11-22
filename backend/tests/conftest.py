@@ -1,7 +1,7 @@
 # tests/conftest.py
 import pytest
-from core.models import db, Users, Lists, Tasks
-from run import create_app
+from backend.core.models import db, Users, Lists, Tasks
+from backend.run import create_app
 from datetime import datetime
 
 @pytest.fixture
