@@ -8,6 +8,7 @@ import Logo from '../components/Logo';
 const Auth = () => {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
+  const [formErrors, setFormErrors] = useState({});
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -18,6 +19,22 @@ const Auth = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate form
+    const errors = {};
+    if (!isLogin) {
+      const emailError = validateEmail(formData.email);
+      if (emailError) errors.email = emailError;
+    }
+    
+    const passwordError = validatePassword(formData.password);
+    if (passwordError) errors.password = passwordError;
+    
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
     try {
       if (isLogin) {
         const loginData = {
@@ -41,9 +58,15 @@ const Auth = () => {
         setIsLogin(true);
       }
     } catch (error) {
+      let errorMessage = 'Authentication failed';
+      if (error.response?.status === 429) {
+        errorMessage = 'Too many attempts. Please try again later.';
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
       notifications.show({
         title: 'Error',
-        message: error.response?.data?.message || 'Authentication failed',
+        message: errorMessage,
         color: 'red'
       });
     }
@@ -51,6 +74,36 @@ const Auth = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const validatePassword = (password) => {
+    const minLength = 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*]/.test(password);
+
+    if (password.length < minLength) {
+      return 'Password must be at least 8 characters long';
+    }
+    if (!hasUpperCase || !hasLowerCase) {
+      return 'Password must contain both uppercase and lowercase letters';
+    }
+    if (!hasNumbers) {
+      return 'Password must contain at least one number';
+    }
+    if (!hasSpecialChar) {
+      return 'Password must contain at least one special character (!@#$%^&*)';
+    }
+    return null;
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return 'Please enter a valid email address';
+    }
+    return null;
   };
 
   return (
@@ -92,6 +145,7 @@ const Auth = () => {
                 onChange={handleChange}
                 required
                 mt="md"
+                error={formErrors.email}
               />
             </>
           )}
@@ -102,6 +156,7 @@ const Auth = () => {
             onChange={handleChange}
             required
             mt="md"
+            error={formErrors.password}
           />
           <Group justify="center" mt="xl">
             <Button type="submit" fullWidth>
