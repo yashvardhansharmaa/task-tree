@@ -61,7 +61,21 @@ const ListComponent = ({ list }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Paper shadow="sm" radius="md" style={{ overflow: 'hidden' }}>
+      <Paper
+        shadow="sm"
+        p={0}
+        style={{ 
+          minWidth: 300,
+          width: list.items.some(item => 
+            countTotalSubItems(item) > 3
+          ) ? '600px' : '300px',
+          maxWidth: '800px',
+          backgroundColor: 'white',
+          border: '1px solid #e9ecef',
+          transition: 'width 0.3s ease',
+          overflow: 'visible'
+        }}
+      >
         <Group position="apart" p="md" style={{ 
           borderBottom: '1px solid #e9ecef',
           background: 'linear-gradient(45deg, #f1f3f5, #f8f9fa)'
@@ -190,6 +204,18 @@ const ListComponent = ({ list }) => {
       </Paper>
     </motion.div>
   );
+};
+
+// Helper function to count total sub-items recursively
+const countTotalSubItems = (item) => {
+  let count = 0;
+  if (item.subItems?.length) {
+    count += item.subItems.length;
+    item.subItems.forEach(subItem => {
+      count += countTotalSubItems(subItem);
+    });
+  }
+  return count;
 };
 
 export default ListComponent;

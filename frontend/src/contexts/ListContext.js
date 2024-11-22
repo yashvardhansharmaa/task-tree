@@ -66,18 +66,31 @@ export const ListProvider = ({ children }) => {
   const addList = async (title) => {
     try {
       const response = await axiosInstance.post(API_ENDPOINTS.lists.create, {
-        title: title || 'New List'
+        name: title || 'New List',
+        subject: title || 'New List',
+        description: ''
       });
-      setLists(prev => [...prev, response.data]);
-      showNotification({
-        title: 'List created',
-        message: 'New list has been added',
-        color: 'green'
-      });
+
+      if (response.data.ok) {
+        const newList = {
+          id: response.data.list.id,
+          title: response.data.list.name,
+          items: []
+        };
+
+        setLists(prev => [...prev, newList]);
+        
+        showNotification({
+          title: 'Success',
+          message: 'New list has been added',
+          color: 'green'
+        });
+      }
     } catch (error) {
+      console.error('Failed to create list:', error);
       showNotification({
         title: 'Error',
-        message: 'Failed to create list',
+        message: error.response?.data?.message || 'Failed to create list',
         color: 'red'
       });
     }

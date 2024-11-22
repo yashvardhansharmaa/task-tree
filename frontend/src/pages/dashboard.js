@@ -40,27 +40,54 @@ const Dashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Group align="flex-start" spacing="md" style={{ overflowX: 'auto', minHeight: 'calc(100vh - 160px)' }}>
+          <Group 
+            align="flex-start" 
+            spacing={40}
+            style={{ 
+              overflowX: 'auto',
+              overflowY: 'hidden',
+              minHeight: 'calc(100vh - 160px)',
+              padding: '20px 40px',
+              position: 'relative',
+              display: 'flex',
+              flexWrap: 'nowrap',
+              gap: '40px',
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#228BE6 #f1f3f5',
+              '&::-webkit-scrollbar': {
+                width: '8px',
+                height: '8px',
+              },
+              '&::-webkit-scrollbar-track': {
+                background: '#f1f3f5',
+                borderRadius: '4px',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                background: '#228BE6',
+                borderRadius: '4px',
+              }
+            }}
+          >
             {lists.map((list, index) => (
-              <Transition mounted={true} transition="pop" duration={400} timingFunction="ease">
-                {(styles) => (
-                  <Paper
-                    key={list.id}
-                    shadow="sm"
-                    p={0}
-                    style={{ 
-                      ...styles,
-                      minWidth: 300,
-                      maxWidth: list.items.some(item => item.subItems?.length > 3) ? 400 : 300,
-                      backgroundColor: 'white',
-                      border: '1px solid #e9ecef',
-                      transition: 'max-width 0.3s ease'
-                    }}
-                  >
-                    <ListComponent list={list} />
-                  </Paper>
-                )}
-              </Transition>
+              <Paper
+                key={list.id}
+                shadow="sm"
+                p={0}
+                style={{ 
+                  minWidth: 300,
+                  width: list.items.some(item => 
+                    item.subItems?.length > 3 || 
+                    item.subItems?.some(sub => sub.subItems?.length > 2)
+                  ) ? '600px' : '300px',
+                  backgroundColor: 'white',
+                  border: '1px solid #e9ecef',
+                  transition: 'all 0.3s ease',
+                  position: 'relative',
+                  overflow: 'visible'  // Changed from hidden
+                }}
+              >
+                <ListComponent list={list} />
+              </Paper>
             ))}
           </Group>
         </motion.div>
