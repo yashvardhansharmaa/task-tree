@@ -48,17 +48,13 @@ export const ListProvider = ({ children }) => {
   const updateItemsRecursively = (items, targetId, updateFn) => {
     return items.map(item => {
       if (item.id === targetId) {
-        const updatedItem = updateFn(item);
-        return updatedItem;
+        return updateFn(item);
       }
       if (item.subItems?.length > 0) {
-        const updatedSubItems = updateItemsRecursively(item.subItems, targetId, updateFn);
-        if (updatedSubItems !== item.subItems) {
-          return {
-            ...item,
-            subItems: updatedSubItems
-          };
-        }
+        return {
+          ...item,
+          subItems: updateItemsRecursively(item.subItems, targetId, updateFn)
+        };
       }
       return item;
     });
@@ -122,7 +118,7 @@ export const ListProvider = ({ children }) => {
     });
   };
 
-  const addItem = (listId, newItem) => {
+  const addItem = async (listId, newItem) => {
     if (!newItem?.title?.trim()) {
       showNotification({
         title: 'Error',
@@ -132,35 +128,43 @@ export const ListProvider = ({ children }) => {
       return null;
     }
 
-    const item = {
-      id: Date.now().toString(),
-      title: newItem.title.trim(),
-      description: newItem.description || '',
-      labels: newItem.labels || [],
-      completed: false,
-      collapsed: false,
-      subItems: []
-    };
+    try {
+      const response = await axiosInstance.post(API_ENDPOINTS.items.create(listId), {
+        title: newItem.title.trim(),
+        description: newItem.description || '',
+        labels: newItem.labels || []
+      });
 
-    setLists(prev => 
-      prev.map(list => {
-        if (list.id === listId) {
-          return {
-            ...list,
-            items: [...list.items, item]
-          };
-        }
-        return list;
-      })
-    );
+      if (response.data.ok) {
+        setLists(prev => 
+          prev.map(list => {
+            if (list.id === listId) {
+              return {
+                ...list,
+                items: [...list.items, response.data.item]
+              };
+            }
+            return list;
+          })
+        );
 
-    showNotification({
-      title: 'Task added',
-      message: 'New task has been created',
-      color: 'green'
-    });
+        showNotification({
+          title: 'Task added',
+          message: 'New task has been created',
+          color: 'green'
+        });
 
-    return item.id;
+        return response.data.item.id;
+      }
+    } catch (error) {
+      console.error('Failed to add item:', error);
+      showNotification({
+        title: 'Error',
+        message: error.response?.data?.message || 'Failed to add task',
+        color: 'red'
+      });
+      return null;
+    }
   };
 
   const getItemDepth = (items, targetId, currentDepth = 0) => {
@@ -178,24 +182,11 @@ export const ListProvider = ({ children }) => {
     return -1;
   };
 
-  const addSubItem = (parentId, newItem = { title: 'New Sub-task' }) => {
+  const addSubItem = async (parentId, newItem) => {
     if (!newItem?.title?.trim()) {
       showNotification({
         title: 'Error',
         message: 'Sub-task title cannot be empty',
-        color: 'red'
-      });
-      return null;
-    }
-
-    const parentDepth = lists.some(list => 
-      getItemDepth(list.items, parentId) !== -1
-    );
-
-    if (parentDepth >= 2) {
-      showNotification({
-        title: 'Error',
-        message: 'Maximum task depth reached (3 levels)',
         color: 'red'
       });
       return null;

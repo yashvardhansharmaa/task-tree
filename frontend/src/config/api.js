@@ -1,10 +1,11 @@
-const API_BASE_URL = 'http://localhost:3001/api';
+export const API_BASE_URL = 'http://localhost:3001/api';
 
 export const API_ENDPOINTS = {
   auth: {
     login: '/auth/login',
     register: '/auth/register',
-    logout: '/auth/logout'
+    logout: '/auth/logout',
+    me: '/auth/me'
   },
   lists: {
     getAll: '/lists',

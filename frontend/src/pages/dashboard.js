@@ -13,7 +13,7 @@ import { showNotification } from '@mantine/notifications';
 
 const Dashboard = () => {
   const { lists, loading, moveItem, addList, updateList, deleteList } = useList();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   if (loading) {
@@ -37,22 +37,15 @@ const Dashboard = () => {
   };
 
   return (
-    <Container fluid p="xl">
-      <Box mb="xl">
-        <Group position="apart" align="center">
+    <Container fluid p={0} style={{ maxWidth: '100%' }}>
+      <Box p="xl" sx={{ width: '100%', borderBottom: '1px solid #e9ecef' }}>
+        <Group position="apart" align="center" style={{ width: '100%' }}>
           <Group spacing="xs">
             <Logo />
             <Text size="sm" color="dimmed">Organize your tasks hierarchically</Text>
           </Group>
-          <Group>
-            <Button
-              variant="gradient"
-              gradient={{ from: 'indigo', to: 'cyan' }}
-              leftIcon={<IconPlus size={16} />}
-              onClick={() => addList('New List')}
-            >
-              New List
-            </Button>
+          <Group spacing="xl">
+            <Text>Welcome, {user?.displayName || user?.username}!</Text>
             <Button
               variant="subtle"
               color="gray"
@@ -106,14 +99,14 @@ const Dashboard = () => {
                 style={{ 
                   minWidth: 300,
                   width: list.items.some(item => 
-                    item.subItems?.length > 3 || 
-                    item.subItems?.some(sub => sub.subItems?.length > 2)
+                    item.subItems?.length > 10 || 
+                    item.subItems?.some(sub => sub.subItems?.length > 10)
                   ) ? '600px' : '300px',
                   backgroundColor: 'white',
                   border: '1px solid #e9ecef',
                   transition: 'all 0.3s ease',
                   position: 'relative',
-                  overflow: 'visible'  // Changed from hidden
+                  overflow: 'visible'
                 }}
               >
                 <ListComponent list={list} />
