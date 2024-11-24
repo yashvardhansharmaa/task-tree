@@ -28,6 +28,31 @@ const ListComponent = ({ list }) => {
   
   const { addItem, updateList, deleteList } = useList();
 
+  const stats = list.items.reduce((acc, item) => {
+    const countItems = (items) => {
+      return items.reduce((sum, i) => {
+        const subItemCount = i.subItems ? countItems(i.subItems) : 0;
+        return sum + 1 + subItemCount;
+      }, 0);
+    };
+
+    const countCompleted = (items) => {
+      return items.reduce((sum, i) => {
+        const subItemCompleted = i.subItems ? countCompleted(i.subItems) : 0;
+        return sum + (i.completed ? 1 : 0) + subItemCompleted;
+      }, 0);
+    };
+
+    const totalItems = countItems(list.items);
+    const completedItems = countCompleted(list.items);
+
+    return {
+      total: totalItems,
+      completed: completedItems,
+      percentage: totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0
+    };
+  }, { total: 0, completed: 0, percentage: 0 });
+
   const handleAddItem = () => {
     if (newItemTitle.trim()) {
       addItem(list.id, { 
@@ -125,6 +150,33 @@ const ListComponent = ({ list }) => {
           </Menu>
         </Group>
 
+        <Box px="md" pb="md">
+          <Group position="apart" mb={4}>
+            <Text size="xs" color="dimmed">Progress</Text>
+            <Text size="xs" color="dimmed">{stats.percentage}%</Text>
+          </Group>
+          <div 
+            style={{
+              width: '100%',
+              height: 4,
+              backgroundColor: '#f1f3f5',
+              borderRadius: 2,
+              overflow: 'hidden'
+            }}
+          >
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${stats.percentage}%` }}
+              transition={{ duration: 0.5 }}
+              style={{
+                height: '100%',
+                backgroundColor: stats.percentage === 100 ? '#40C057' : '#228be6',
+                borderRadius: 2
+              }}
+            />
+          </div>
+        </Box>
+
         <Droppable droppableId={list.id}>
           {(provided) => (
             <Stack
@@ -173,7 +225,7 @@ const ListComponent = ({ list }) => {
                   onClick={() => setIsAdding(true)}
                   fullWidth
                 >
-                  Add card
+                  Add Task
                 </Button>
               )}
             </Stack>

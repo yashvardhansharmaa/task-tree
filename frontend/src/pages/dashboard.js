@@ -13,7 +13,7 @@ import { showNotification } from '@mantine/notifications';
 
 const Dashboard = () => {
   const { lists, loading, moveItem, addList, updateList, deleteList } = useList();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   if (loading) {
@@ -37,27 +37,39 @@ const Dashboard = () => {
   };
 
   return (
-    <Container fluid p="xl">
-      <Box mb="xl">
+    <Container fluid p={0}>
+      <Box
+        py="md"
+        px="xl"
+        style={{
+          borderBottom: '1px solid #E9ECEF',
+          backgroundColor: 'white',
+          position: 'sticky',
+          top: 0,
+          zIndex: 100
+        }}
+      >
         <Group position="apart" align="center">
-          <Group spacing="xs">
+          <Group spacing="md">
             <Logo />
-            <Text size="sm" color="dimmed">Organize your tasks hierarchically</Text>
+            <Text size="sm" color="dimmed">
+              Organize your tasks hierarchically
+            </Text>
           </Group>
-          <Group>
+
+          <Group spacing="md">
+            <Text size="sm">
+              Welcome, {user?.username || user?.email?.split('@')?.[0] || 'Guest'}!
+            </Text>
             <Button
               variant="gradient"
-              gradient={{ from: 'indigo', to: 'cyan' }}
+              gradient={{ from: 'blue', to: 'cyan' }}
               leftIcon={<IconPlus size={16} />}
               onClick={() => addList('New List')}
             >
               New List
             </Button>
-            <Button
-              variant="subtle"
-              color="gray"
-              onClick={handleLogout}
-            >
+            <Button variant="subtle" color="gray" onClick={handleLogout}>
               Logout
             </Button>
           </Group>

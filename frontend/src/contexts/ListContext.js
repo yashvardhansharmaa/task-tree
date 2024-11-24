@@ -48,8 +48,7 @@ export const ListProvider = ({ children }) => {
   const updateItemsRecursively = (items, targetId, updateFn) => {
     return items.map(item => {
       if (item.id === targetId) {
-        const updatedItem = updateFn(item);
-        return updatedItem;
+        return updateFn(item);
       }
       if (item.subItems?.length > 0) {
         const updatedSubItems = updateItemsRecursively(item.subItems, targetId, updateFn);
@@ -188,19 +187,6 @@ export const ListProvider = ({ children }) => {
       return null;
     }
 
-    const parentDepth = lists.some(list => 
-      getItemDepth(list.items, parentId) !== -1
-    );
-
-    if (parentDepth >= 2) {
-      showNotification({
-        title: 'Error',
-        message: 'Maximum task depth reached (3 levels)',
-        color: 'red'
-      });
-      return null;
-    }
-
     const newId = Date.now().toString();
     
     setLists(prev => 
@@ -286,24 +272,38 @@ export const ListProvider = ({ children }) => {
   };
 
   const toggleItemComplete = (itemId) => {
+    const toggleAllSubItems = (items, newStatus) => {
+      return items.map(item => ({
+        ...item,
+        completed: newStatus,
+        subItems: item.subItems ? toggleAllSubItems(item.subItems, newStatus) : []
+      }));
+    };
+
+    const updateItemsWithCompletion = (items, targetId) => {
+      return items.map(item => {
+        if (item.id === targetId) {
+          const newStatus = !item.completed;
+          return {
+            ...item,
+            completed: newStatus,
+            subItems: item.subItems ? toggleAllSubItems(item.subItems, newStatus) : []
+          };
+        }
+        if (item.subItems?.length > 0) {
+          return {
+            ...item,
+            subItems: updateItemsWithCompletion(item.subItems, targetId)
+          };
+        }
+        return item;
+      });
+    };
+
     setLists(prev => 
       prev.map(list => ({
         ...list,
-        items: updateItemsRecursively(list.items, itemId, item => {
-          const newCompleted = !item.completed;
-          return {
-            ...item,
-            completed: newCompleted,
-            subItems: item.subItems?.map(subItem => ({
-              ...subItem,
-              completed: newCompleted,
-              subItems: subItem.subItems?.map(subSubItem => ({
-                ...subSubItem,
-                completed: newCompleted
-              }))
-            }))
-          };
-        })
+        items: updateItemsWithCompletion(list.items, itemId)
       }))
     );
   };
