@@ -1,7 +1,7 @@
 // src/components/ItemComponent.js
 import React, { useState } from 'react';
 import { ActionIcon, Group, Text, TextInput, Menu, Paper, Collapse, Box, Checkbox } from '@mantine/core';
-import { IconPlus, IconDotsVertical, IconX, IconChevronRight, IconChevronDown } from '@tabler/icons-react';
+import { IconPlus, IconDotsVertical, IconX, IconChevronRight, IconChevronDown, IconEdit } from '@tabler/icons-react';
 import { useList } from '../contexts/ListContext';
 import { motion } from 'framer-motion';
 
@@ -9,6 +9,7 @@ const ItemComponent = ({ item, index, depth = 0 }) => {
   const [isAddingSubTask, setIsAddingSubTask] = useState(false);
   const [newSubTaskTitle, setNewSubTaskTitle] = useState('');
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const { addSubItem, deleteItem, toggleItemComplete } = useList();
 
   const handleAddSubTask = () => {
@@ -79,10 +80,13 @@ const ItemComponent = ({ item, index, depth = 0 }) => {
               </ActionIcon>
             </Menu.Target>
             <Menu.Dropdown>
-              <Menu.Item onClick={() => setIsAddingSubTask(true)}>
+              <Menu.Item icon={<IconEdit size={16} />} onClick={() => setIsEditing(true)}>
+                Edit
+              </Menu.Item>
+              <Menu.Item icon={<IconPlus size={16} />} onClick={() => setIsAddingSubTask(true)}>
                 Add subtask
               </Menu.Item>
-              <Menu.Item color="red" onClick={() => deleteItem(item.id)}>
+              <Menu.Item color="red" icon={<IconX size={16} />} onClick={() => deleteItem(item.id)}>
                 Delete
               </Menu.Item>
             </Menu.Dropdown>

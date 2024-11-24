@@ -48,8 +48,7 @@ export const ListProvider = ({ children }) => {
   const updateItemsRecursively = (items, targetId, updateFn) => {
     return items.map(item => {
       if (item.id === targetId) {
-        const updatedItem = updateFn(item);
-        return updatedItem;
+        return updateFn(item);
       }
       if (item.subItems?.length > 0) {
         const updatedSubItems = updateItemsRecursively(item.subItems, targetId, updateFn);
@@ -183,19 +182,6 @@ export const ListProvider = ({ children }) => {
       showNotification({
         title: 'Error',
         message: 'Sub-task title cannot be empty',
-        color: 'red'
-      });
-      return null;
-    }
-
-    const parentDepth = lists.some(list => 
-      getItemDepth(list.items, parentId) !== -1
-    );
-
-    if (parentDepth >= 2) {
-      showNotification({
-        title: 'Error',
-        message: 'Maximum task depth reached (3 levels)',
         color: 'red'
       });
       return null;
