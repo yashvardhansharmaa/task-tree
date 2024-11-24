@@ -37,39 +37,20 @@ const Dashboard = () => {
   };
 
   return (
-    <Container fluid p={0}>
-      <Box
-        py="md"
-        px="xl"
-        style={{
-          borderBottom: '1px solid #E9ECEF',
-          backgroundColor: 'white',
-          position: 'sticky',
-          top: 0,
-          zIndex: 100
-        }}
-      >
-        <Group position="apart" align="center">
-          <Group spacing="md">
+    <Container fluid p={0} style={{ maxWidth: '100%' }}>
+      <Box p="xl" sx={{ width: '100%', borderBottom: '1px solid #e9ecef' }}>
+        <Group position="apart" align="center" style={{ width: '100%' }}>
+          <Group spacing="xs">
             <Logo />
-            <Text size="sm" color="dimmed">
-              Organize your tasks hierarchically
-            </Text>
+            <Text size="sm" color="dimmed">Organize your tasks hierarchically</Text>
           </Group>
-
-          <Group spacing="md">
-            <Text size="sm">
-              Welcome, {user?.username || user?.email?.split('@')?.[0] || 'Guest'}!
-            </Text>
+          <Group spacing="xl">
+            <Text>Welcome, {user?.displayName || user?.username}!</Text>
             <Button
-              variant="gradient"
-              gradient={{ from: 'blue', to: 'cyan' }}
-              leftIcon={<IconPlus size={16} />}
-              onClick={() => addList('New List')}
+              variant="subtle"
+              color="gray"
+              onClick={handleLogout}
             >
-              New List
-            </Button>
-            <Button variant="subtle" color="gray" onClick={handleLogout}>
               Logout
             </Button>
           </Group>
@@ -118,14 +99,14 @@ const Dashboard = () => {
                 style={{ 
                   minWidth: 300,
                   width: list.items.some(item => 
-                    item.subItems?.length > 3 || 
-                    item.subItems?.some(sub => sub.subItems?.length > 2)
+                    item.subItems?.length > 10 || 
+                    item.subItems?.some(sub => sub.subItems?.length > 10)
                   ) ? '600px' : '300px',
                   backgroundColor: 'white',
                   border: '1px solid #e9ecef',
                   transition: 'all 0.3s ease',
                   position: 'relative',
-                  overflow: 'visible'  // Changed from hidden
+                  overflow: 'visible'
                 }}
               >
                 <ListComponent list={list} />

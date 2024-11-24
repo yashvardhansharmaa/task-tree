@@ -1,135 +1,197 @@
 // src/components/ItemComponent.js
 import React, { useState } from 'react';
-import { ActionIcon, Group, Text, TextInput, Menu, Paper, Collapse, Box, Checkbox } from '@mantine/core';
-import { IconPlus, IconDotsVertical, IconX, IconChevronRight, IconChevronDown, IconEdit } from '@tabler/icons-react';
+import { ActionIcon, Group, Text, TextInput, Menu, Checkbox, Stack } from '@mantine/core';
+import { IconPlus, IconDotsVertical, IconX, IconEdit, IconChevronDown } from '@tabler/icons-react';
 import { useList } from '../contexts/ListContext';
 import { motion } from 'framer-motion';
+import { Draggable, Droppable } from 'react-beautiful-dnd';
 
-const ItemComponent = ({ item, index, depth = 0 }) => {
+const ItemComponent = ({ item, index, depth = 0, parentChain = [] }) => {
   const [isAddingSubTask, setIsAddingSubTask] = useState(false);
   const [newSubTaskTitle, setNewSubTaskTitle] = useState('');
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const { addSubItem, deleteItem, toggleItemComplete } = useList();
+  const [editedTitle, setEditedTitle] = useState(item.title);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const { addSubItem, deleteItem, toggleItemComplete, updateItem } = useList();
+  
+  const hasSubtasks = item.subItems?.length > 0;
+  const completedSubtasks = item.subItems?.filter(si => si.completed).length || 0;
+  const totalSubtasks = item.subItems?.length || 0;
 
   const handleAddSubTask = () => {
     if (newSubTaskTitle.trim()) {
       addSubItem(item.id, { title: newSubTaskTitle });
       setNewSubTaskTitle('');
       setIsAddingSubTask(false);
+      setIsCollapsed(false);
     }
   };
 
-  const hasSubTasks = item.subItems?.length > 0;
-  const maxDepthReached = depth >= 2;
+  const handleUpdateTitle = () => {
+    if (editedTitle.trim() && editedTitle !== item.title) {
+      updateItem(item.id, { title: editedTitle.trim() });
+    }
+    setIsEditing(false);
+  };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.2, delay: index * 0.1 }}
-    >
-      <Paper
-        shadow="xs"
-        p="sm"
-        style={{
-          marginLeft: depth * 16,
-          borderLeft: depth > 0 ? '2px solid #e9ecef' : 'none',
-          backgroundColor: item.completed ? '#f8f9fa' : 'white',
-          opacity: item.completed ? 0.8 : 1,
-        }}
-      >
-        <Group position="apart" spacing="xl">
-          <Group spacing="xs">
-            {hasSubTasks && (
-              <ActionIcon 
-                size="sm" 
-                variant="subtle"
-                onClick={() => setIsCollapsed(!isCollapsed)}
-              >
-                {isCollapsed ? <IconChevronRight size={16} /> : <IconChevronDown size={16} />}
-              </ActionIcon>
-            )}
-            <Group spacing={4}>
+    <Draggable draggableId={item.id} index={index}>
+      {(provided, snapshot) => (
+        <div
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+          ref={provided.innerRef}
+          style={{
+            ...provided.draggableProps.style,
+            position: 'relative'
+          }}
+        >
+          {/* Vertical lines */}
+          {depth > 0 && (
+            <div
+              style={{
+                position: 'absolute',
+                left: depth * 20,
+                top: 0,
+                bottom: 0,
+                width: 2,
+                backgroundColor: depth === 1 ? '#228be6' : '#7950f2',
+                opacity: 0.2
+              }}
+            />
+          )}
+
+          <Stack spacing={1}>
+            <Group spacing="sm" pl={depth * 40} py={1}>
               <Checkbox
                 checked={item.completed}
                 onChange={() => toggleItemComplete(item.id)}
+                size="sm"
                 styles={{
+                  root: { cursor: 'pointer' },
                   input: {
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    ':checked': {
-                      backgroundColor: '#228BE6',
-                      borderColor: '#228BE6',
-                    }
-                  },
-                  label: {
-                    textDecoration: item.completed ? 'line-through' : 'none',
-                    color: item.completed ? '#868e96' : 'inherit',
-                    transition: 'all 0.2s ease'
+                    transition: 'all 0.1s ease',
+                    backgroundColor: item.completed ? '#228BE6' : 'white'
                   }
                 }}
-                label={item.title}
               />
-            </Group>
-          </Group>
-          <Menu position="bottom-end">
-            <Menu.Target>
-              <ActionIcon>
-                <IconDotsVertical size={16} />
-              </ActionIcon>
-            </Menu.Target>
-            <Menu.Dropdown>
-              <Menu.Item icon={<IconEdit size={16} />} onClick={() => setIsEditing(true)}>
-                Edit
-              </Menu.Item>
-              <Menu.Item icon={<IconPlus size={16} />} onClick={() => setIsAddingSubTask(true)}>
-                Add subtask
-              </Menu.Item>
-              <Menu.Item color="red" icon={<IconX size={16} />} onClick={() => deleteItem(item.id)}>
-                Delete
-              </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
-        </Group>
 
-        <Collapse in={isAddingSubTask}>
-          <TextInput
-            value={newSubTaskTitle}
-            onChange={(e) => setNewSubTaskTitle(e.target.value)}
-            placeholder="Enter subtask title..."
-            mt="xs"
-            rightSection={
+              {isEditing ? (
+                <TextInput
+                  value={editedTitle}
+                  onChange={(e) => setEditedTitle(e.target.value)}
+                  onBlur={handleUpdateTitle}
+                  onKeyPress={(e) => e.key === 'Enter' && handleUpdateTitle()}
+                  size="sm"
+                  style={{ flex: 1 }}
+                  autoFocus
+                />
+              ) : (
+                <Text 
+                  size="sm"
+                  style={{
+                    flex: 1,
+                    textDecoration: item.completed ? 'line-through' : 'none',
+                    color: item.completed ? '#909296' : '#1A1B1E',
+                  }}
+                >
+                  {item.title}
+                  {hasSubtasks && (
+                    <Text span size="xs" color="dimmed" ml={8}>
+                      {completedSubtasks}/{totalSubtasks}
+                    </Text>
+                  )}
+                </Text>
+              )}
+
               <Group spacing={4}>
-                <ActionIcon color="blue" onClick={handleAddSubTask} size="sm">
-                  <IconPlus size={16} />
-                </ActionIcon>
-                <ActionIcon color="gray" onClick={() => setIsAddingSubTask(false)} size="sm">
-                  <IconX size={16} />
-                </ActionIcon>
+                {hasSubtasks && (
+                  <ActionIcon 
+                    size="sm"
+                    variant="subtle"
+                    onClick={() => setIsCollapsed(!isCollapsed)}
+                  >
+                    <IconChevronDown 
+                      size={16} 
+                      style={{ 
+                        transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.2s ease'
+                      }}
+                    />
+                  </ActionIcon>
+                )}
+                
+                <Menu position="bottom-end" transition="pop">
+                  <Menu.Target>
+                    <ActionIcon size="sm" variant="subtle">
+                      <IconDotsVertical size={16} />
+                    </ActionIcon>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    <Menu.Item icon={<IconEdit size={16} />} onClick={() => setIsEditing(true)}>
+                      Edit
+                    </Menu.Item>
+                    {depth < 8 && (
+                      <Menu.Item icon={<IconPlus size={16} />} onClick={() => setIsAddingSubTask(true)}>
+                        Add subtask
+                      </Menu.Item>
+                    )}
+                    <Menu.Item color="red" icon={<IconX size={16} />} onClick={() => deleteItem(item.id)}>
+                      Delete
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
               </Group>
-            }
-            onKeyPress={(e) => e.key === 'Enter' && handleAddSubTask()}
-            autoFocus
-          />
-        </Collapse>
-      </Paper>
+            </Group>
 
-      <Collapse in={!isCollapsed}>
-        {hasSubTasks && (
-          <div>
-            {item.subItems.map((subItem, subIndex) => (
-              <ItemComponent 
-                key={subItem.id} 
-                item={subItem} 
-                index={subIndex} 
-                depth={depth + 1}
-              />
-            ))}
-          </div>
-        )}
-      </Collapse>
-    </motion.div>
+            {isAddingSubTask && (
+              <div style={{ paddingLeft: (depth + 1) * 40 }}>
+                <TextInput
+                  value={newSubTaskTitle}
+                  onChange={(e) => setNewSubTaskTitle(e.target.value)}
+                  placeholder="New subtask..."
+                  size="sm"
+                  autoFocus
+                  rightSection={
+                    <ActionIcon size="sm" variant="subtle" onClick={handleAddSubTask}>
+                      <IconPlus size={16} />
+                    </ActionIcon>
+                  }
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && newSubTaskTitle.trim()) {
+                      handleAddSubTask();
+                    }
+                  }}
+                />
+              </div>
+            )}
+
+            {hasSubtasks && !isCollapsed && (
+              <Droppable droppableId={`${item.id}/subtasks`}>
+                {(provided) => (
+                  <Stack
+                    spacing={1}
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                  >
+                    {item.subItems.map((subItem, idx) => (
+                      <ItemComponent
+                        key={subItem.id}
+                        item={subItem}
+                        index={idx}
+                        depth={depth + 1}
+                        parentChain={[...parentChain, item]}
+                      />
+                    ))}
+                    {provided.placeholder}
+                  </Stack>
+                )}
+              </Droppable>
+            )}
+          </Stack>
+        </div>
+      )}
+    </Draggable>
   );
 };
 
