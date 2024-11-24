@@ -13,7 +13,7 @@ import { showNotification } from '@mantine/notifications';
 
 const Dashboard = () => {
   const { lists, loading, moveItem, addList, updateList, deleteList } = useList();
-  const { currentUser, logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   if (loading) {
@@ -59,7 +59,7 @@ const Dashboard = () => {
 
           <Group spacing="md">
             <Text size="sm">
-              Welcome, {currentUser?.email?.split('@')[0]}!
+              Welcome, {user?.username || user?.email?.split('@')?.[0] || 'Guest'}!
             </Text>
             <Button
               variant="gradient"
