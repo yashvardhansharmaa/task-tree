@@ -38,5 +38,3 @@ Clone the repository (which includes the video tutorial!):
 git clone https://github.com/yashvardhansharmaa/task-tree.git
 ```
 Link: https://github.com/yashvardhansharmaa/task-tree.git
-
-Link to the video demo: https://www.loom.com/share/83ebd76fd3da43c3b1d5dfe4882a3994?sid=91a2c147-8b74-4224-bb76-efb64f4cca71
